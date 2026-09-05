@@ -1,0 +1,590 @@
+```html
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CVAR-Leveling</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, "Noto Sans Thai", sans-serif;
+            background: #f3f6f9;
+            color: #263238;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1565c0, #1976d2);
+            color: white;
+            text-align: center;
+            padding: 28px 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        /* Main container */
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e3f2fd;
+        }
+
+        /* Input rows */
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1.5fr;
+            gap: 15px;
+        }
+
+        .input-row.two-columns {
+            grid-template-columns: 1fr 1.5fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #455a64;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #cfd8dc;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+            background: #fafafa;
+        }
+
+        input:focus {
+            border-color: #1976d2;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+        }
+
+        input:invalid {
+            border-color: #ef5350;
+        }
+
+        /* Calculate button */
+        .button-area {
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .calculate-btn {
+            border: none;
+            background: linear-gradient(135deg, #1565c0, #1976d2);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 13px 45px;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(21, 101, 192, 0.25);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(21, 101, 192, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Result */
+        #result {
+            display: none;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .result-box {
+            background: #f8fbff;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .result-label {
+            font-size: 15px;
+            font-weight: bold;
+            color: #546e7a;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1565c0;
+        }
+
+        .point-label {
+            font-size: 14px;
+            color: #607d8b;
+            margin-top: 5px;
+        }
+
+        /* Formula */
+        .formula {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            color: #455a64;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #78909c;
+            font-size: 13px;
+            padding: 20px;
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .container {
+                margin-top: 20px;
+                padding: 0 12px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .input-row,
+            .input-row.two-columns {
+                grid-template-columns: 1fr;
+                gap: 13px;
+            }
+
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calculate-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <h1>CVAR-Leveling</h1>
+        <p>ระบบคำนวณค่าระดับจาก Back Sight และ Fore Sight</p>
+    </header>
+
+
+    <main class="container">
+
+        <!-- Back Sight -->
+        <section class="card">
+
+            <div class="card-title">
+                1. ข้อมูลจุดอ้างอิง (Back Sight)
+            </div>
+
+            <div class="input-row">
+
+                <div class="form-group">
+                    <label for="bsPoint">
+                        At point
+                    </label>
+
+                    <input
+                        type="number"
+                        id="bsPoint"
+                        step="1"
+                        min="0"
+                        placeholder="เช่น 1"
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="elevationBS">
+                        Elevation at BS
+                    </label>
+
+                    <input
+                        type="number"
+                        id="elevationBS"
+                        step="any"
+                        placeholder="เช่น 100.000"
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="backSight">
+                        Back Sight (BS)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="backSight"
+                        step="any"
+                        placeholder="เช่น 1.250"
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Fore Sight -->
+        <section class="card">
+
+            <div class="card-title">
+                2. ข้อมูลจุดต้องการหาค่า (Fore Sight)
+            </div>
+
+            <div class="input-row two-columns">
+
+                <div class="form-group">
+                    <label for="fsPoint">
+                        At point
+                    </label>
+
+                    <input
+                        type="number"
+                        id="fsPoint"
+                        step="1"
+                        min="0"
+                        placeholder="เช่น 2"
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="foreSight">
+                        Fore Sight (FS)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="foreSight"
+                        step="0.001"
+                        placeholder="เช่น 1.500"
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Calculate -->
+        <div class="button-area">
+
+            <button
+                type="button"
+                class="calculate-btn"
+                onclick="calculateLeveling()"
+            >
+                คำนวณ
+            </button>
+
+        </div>
+
+
+        <!-- Result -->
+        <section class="card" id="result">
+
+            <div class="card-title">
+                ผลการคำนวณ
+            </div>
+
+            <div class="result-grid">
+
+                <!-- H.I -->
+                <div class="result-box">
+
+                    <div class="result-label">
+                        H.I
+                    </div>
+
+                    <div class="result-value" id="hiResult">
+                        0.000
+                    </div>
+
+                    <div class="point-label">
+                        Height of Instrument
+                    </div>
+
+                </div>
+
+
+                <!-- Elevation -->
+                <div class="result-box">
+
+                    <div class="result-label">
+                        Elevation
+                    </div>
+
+                    <div class="result-value" id="elevationResult">
+                        0.000
+                    </div>
+
+                    <div class="point-label">
+                        At point:
+                        <span id="resultPoint">-</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Formula -->
+            <div class="formula">
+
+                <strong>สูตรการคำนวณ</strong><br>
+
+                H.I = Elevation at BS + BS<br>
+
+                Elevation = H.I − FS
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="footer">
+        CVAR-Leveling &copy; 2026
+    </footer>
+
+
+    <script>
+
+        function calculateLeveling() {
+
+            // รับค่าจาก Input
+            const bsPoint = document.getElementById("bsPoint").value.trim();
+            const elevationBS = document.getElementById("elevationBS").value.trim();
+            const backSight = document.getElementById("backSight").value.trim();
+
+            const fsPoint = document.getElementById("fsPoint").value.trim();
+            const foreSight = document.getElementById("foreSight").value.trim();
+
+
+            // ตรวจสอบ At point ของ BS
+            if (bsPoint === "") {
+
+                alert("กรุณากรอกข้อมูล At point ของ Back Sight");
+
+                document.getElementById("bsPoint").focus();
+
+                return;
+            }
+
+
+            // ตรวจสอบ Elevation
+            if (elevationBS === "") {
+
+                alert("กรุณากรอกข้อมูล Elevation at BS");
+
+                document.getElementById("elevationBS").focus();
+
+                return;
+            }
+
+
+            // ตรวจสอบ BS
+            if (backSight === "") {
+
+                alert("กรุณากรอกข้อมูล Back Sight (BS)");
+
+                document.getElementById("backSight").focus();
+
+                return;
+            }
+
+
+            // ตรวจสอบ At point ของ FS
+            if (fsPoint === "") {
+
+                alert("กรุณากรอกข้อมูล At point ของ Fore Sight");
+
+                document.getElementById("fsPoint").focus();
+
+                return;
+            }
+
+
+            // ตรวจสอบ FS
+            if (foreSight === "") {
+
+                alert("กรุณากรอกข้อมูล Fore Sight (FS)");
+
+                document.getElementById("foreSight").focus();
+
+                return;
+            }
+
+
+            // แปลงค่าจาก String เป็น Number
+            const elevation = parseFloat(elevationBS);
+            const bs = parseFloat(backSight);
+            const fs = parseFloat(foreSight);
+
+
+            // ตรวจสอบว่าข้อมูลเป็นตัวเลขจริงหรือไม่
+            if (!Number.isFinite(elevation)) {
+
+                alert("Elevation at BS ต้องเป็นตัวเลขเท่านั้น");
+
+                document.getElementById("elevationBS").focus();
+
+                return;
+            }
+
+
+            if (!Number.isFinite(bs)) {
+
+                alert("Back Sight (BS) ต้องเป็นตัวเลขเท่านั้น");
+
+                document.getElementById("backSight").focus();
+
+                return;
+            }
+
+
+            if (!Number.isFinite(fs)) {
+
+                alert("Fore Sight (FS) ต้องเป็นตัวเลขเท่านั้น");
+
+                document.getElementById("foreSight").focus();
+
+                return;
+            }
+
+
+            // ตรวจสอบ At point ต้องเป็นจำนวนเต็ม
+            if (!Number.isInteger(Number(bsPoint))) {
+
+                alert("At point ของ Back Sight ต้องเป็นจำนวนเต็ม");
+
+                document.getElementById("bsPoint").focus();
+
+                return;
+            }
+
+
+            if (!Number.isInteger(Number(fsPoint))) {
+
+                alert("At point ของ Fore Sight ต้องเป็นจำนวนเต็ม");
+
+                document.getElementById("fsPoint").focus();
+
+                return;
+            }
+
+
+            // ============================
+            // คำนวณ
+            // ============================
+
+            // H.I = Elevation at BS + BS
+            const hi = elevation + bs;
+
+            // Elevation = H.I - FS
+            const newElevation = hi - fs;
+
+
+            // ============================
+            // แสดงผล
+            // ============================
+
+            document.getElementById("hiResult").textContent =
+                hi.toFixed(3);
+
+            document.getElementById("elevationResult").textContent =
+                newElevation.toFixed(3);
+
+            document.getElementById("resultPoint").textContent =
+                fsPoint;
+
+
+            // แสดงกล่องผลลัพธ์
+            const result = document.getElementById("result");
+
+            result.style.display = "block";
+
+
+            // เลื่อนหน้าจอไปยังผลลัพธ์
+            result.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+    </script>
+
+</body>
+</html>
+```
